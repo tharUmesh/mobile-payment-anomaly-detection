@@ -1,3 +1,8 @@
 # Test the Mapper Locally
 
 Get-Content data\sample_data.csv | python src\mapper.py
+
+
+# Test the Full Pipeline Locally
+
+Get-Content data\sample_data.csv | python src\mapper.py | Sort-Object | python src\reducer.py
