@@ -1,0 +1,3 @@
+# Test the Mapper Locally
+
+Get-Content data\sample_data.csv | python src\mapper.py
