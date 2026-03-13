@@ -1,0 +1,29 @@
+# ----------------------------------------------------------------------
+# Python Environments & Cache
+# ----------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+
+# ----------------------------------------------------------------------
+# IDE & OS Files
+# ----------------------------------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ----------------------------------------------------------------------
+# Data Files (CRITICAL PREVENTIONS)
+# ----------------------------------------------------------------------
+# Ignore all large CSV data files to prevent GitHub push rejections
+data/*.csv
+
+# EXCEPT: Force Git to track our tiny sample dataset for local testing
+!data/sample_data.csv
+
+# Ignore Hadoop execution logs (except the one you explicitly save for submission)
+*.log
