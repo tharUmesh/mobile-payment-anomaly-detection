@@ -44,8 +44,9 @@ def run_reducer():
         detect_anomalies(current_account, transactions)
 
 def detect_anomalies(account, transactions):
-    # Sort the grouped transactions chronologically by 'step'
-    transactions.sort(key=lambda x: x['step'])
+    # Sort chronologically by 'step'. 
+    # If steps are identical, sort by 'newbalance' descending to ensure 0.0 is last.
+    transactions.sort(key=lambda x: (x['step'], -x['newbalance']))
     
     # --- STRATEGY 1: Transfer-then-Cash-Out Pivot ---
     for i in range(len(transactions) - 1):
