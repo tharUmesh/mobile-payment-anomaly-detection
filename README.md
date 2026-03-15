@@ -21,37 +21,44 @@ The system is designed to run:
 
 ## Detection Logic
 
-The reducer currently flags three anomaly families:
+The reducer currently flags four specific anomaly families based on known money-laundering and account-takeover behaviors (including PaySim-specific agent signatures):
 
-1. Transfer-then-Cash-Out Pivot
-	 - Pattern: `TRANSFER` followed by `CASH_OUT`
-	 - Rule: second transaction occurs within 2 steps and transfer amount is at least 200000
-2. High-Velocity Depletion
-	 - Pattern: rapid sequence draining account balance to `0.0`
-	 - Rule: at least 3 transactions and the full sequence happens within 1 step
-3. Scattering Pattern
-	 - Pattern: one account sends to many destinations quickly
-	 - Rule: at least 5 distinct destination accounts within 3 steps
+1. *Exact Account Drain (PaySim Signature)*
+   - *Pattern:* Fraudsters take over an account and immediately empty it.
+   - *Rule:* TRANSFER or CASH_OUT where the transaction amount exactly matches the oldbalanceOrg (within a 0.01 margin), leaving the newbalanceOrig at exactly 0.0.
+2. *Blackhole Transfer Destination*
+   - *Pattern:* Massive illegal transfers are sent to a destination, but the destination balance does not reflect the injection.
+   - *Rule:* A TRANSFER of > 100,000 where both oldbalanceDest and newbalanceDest bizarrely remain at 0.0.
+3. *High-Velocity Depletion*
+   - *Pattern:* A rapid sequence of smaller transactions draining an account balance to 0.0.
+   - *Rule:* At least 3 transactions occur, the final balance hits 0.0, and the full sequence happens within 1 time step (hour).
+4. *Scattering Pattern*
+   - *Pattern:* Smurfing/Structuring where one account sends money to many destinations quickly.
+   - *Rule:* One origin account sends funds to at least 5 distinct destination accounts within 3 time steps.
 
-Output format:
-
-`<account_id>\tANOMALY: <description>`
+*Output format:*
+<account_id>\tANOMALY: <description>
 
 ## Repository Structure
 
 ```text
 mobile-payment-anomaly-detection/
 |- data/
-|  |- sample_data.csv                         # Small local test dataset
-|  |- PS_20174392719_1491204439457_log.csv   # Full PaySim dataset (local use)
-|- docs/                                      # Supporting documentation/report assets
+|  |- sample_data.csv               # Small local test dataset
+|  |- paysim.csv                    # Full PaySim dataset (local use - DO NOT COMMIT)
+|- docs/                            # Supporting documentation/report assets
+|- output/                          # Local copy of Hadoop execution results
+|  |- _SUCCESS                      # Hadoop success flag
+|  |- part-00000                    # MapReduce output (flagged anomalies)
 |- src/
-|  |- mapper.py                               # Emits key-value records by source account
-|  |- reducer.py                              # Groups, sorts, and applies anomaly rules
-|- commands.txt                               # Useful local test commands
-|- requirements.txt                           # Python dependencies (currently none)
-`- README.md
-```
+|  |- mapper.py                     # Emits 8 data points per transaction by source account
+|  |- reducer.py                    # Groups, secondary sorts, and applies anomaly rules
+|- .gitignore                       # Git tracking exclusions
+|- commands.txt                     # Useful local test commands
+|- detected_accounts.txt            # List of anomalies found by the model
+|- README.md                        # Project documentation
+|- requirements.txt                 # Python dependencies
+`- true_fraud_accounts.txt          # Ground truth frauds extracted from the dataset
 
 ## Dataset
 
