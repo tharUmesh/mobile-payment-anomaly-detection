@@ -14,28 +14,28 @@ def run_mapper():
         # Split the CSV line
         parts = line.split(',')
         
-        # Skip the header row (the first column of the header is 'step')
+        # Skip the header row
         if parts[0] == 'step':
             continue
             
         # Ensure the row has the correct number of columns (PaySim has 11)
         if len(parts) == 11:
             try:
-                # Extract the necessary fields
+                # Extract the expanded necessary fields
                 step = parts[0]
                 tx_type = parts[1]
                 amount = parts[2]
                 nameOrig = parts[3]
+                oldbalanceOrg = parts[4]  # NEW: Balance before tx
                 newbalanceOrig = parts[5]
                 nameDest = parts[6]
+                oldbalanceDest = parts[7] # NEW: Dest balance before
+                newbalanceDest = parts[8] # NEW: Dest balance after
                 
-                # The Key is the origin account (nameOrig)
-                # The Value is a comma-separated string of the transaction details
-                # Hadoop requires the Key and Value to be separated by a tab (\t)
-                print(f"{nameOrig}\t{step},{tx_type},{amount},{newbalanceOrig},{nameDest}")
+                # Output 8 data points in the value string
+                print(f"{nameOrig}\t{step},{tx_type},{amount},{oldbalanceOrg},{newbalanceOrig},{nameDest},{oldbalanceDest},{newbalanceDest}")
                 
             except IndexError:
-                # Silently ignore malformed lines to prevent the job from crashing
                 continue
 
 if __name__ == "__main__":
