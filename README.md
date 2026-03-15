@@ -36,8 +36,11 @@ The reducer currently flags four specific anomaly families based on known money-
    - *Pattern:* Smurfing/Structuring where one account sends money to many destinations quickly.
    - *Rule:* One origin account sends funds to at least 5 distinct destination accounts within 3 time steps.
 
-*Output format:*
+**Output format:**
+
+```
 <account_id>\tANOMALY: <description>
+```
 
 ## Repository Structure
 
@@ -64,7 +67,7 @@ mobile-payment-anomaly-detection/
 
 This project uses the synthetic PaySim transaction dataset:
 
-- Name: `PS_20174392719_1491204439457_log.csv`
+- Name: `paysim.csv`
 - Source: Kaggle (PaySim)
 - Scale: 6.3M+ transaction records (hundreds of MB)
 
@@ -118,7 +121,7 @@ Step A: Create HDFS input path and upload data
 
 ```bash
 hdfs dfs -mkdir -p /paysim/input
-hdfs dfs -put data/PS_20174392719_1491204439457_log.csv /paysim/input/
+hdfs dfs -put data/paysim.csv /paysim/input/
 ```
 
 Step B: Run streaming job
@@ -128,7 +131,7 @@ hadoop jar /path/to/hadoop-streaming.jar \
 	-files src/mapper.py,src/reducer.py \
 	-mapper "python3 mapper.py" \
 	-reducer "python3 reducer.py" \
-	-input /paysim/input/PS_20174392719_1491204439457_log.csv \
+	-input /paysim/input/paysim.csv \
 	-output /paysim/output
 ```
 
